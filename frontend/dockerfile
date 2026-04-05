@@ -1,0 +1,27 @@
+# Stage 1: Build
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+
+# Stage 2: Final
+FROM node:18-alpine
+WORKDIR /app
+
+# Security Setup
+RUN addgroup -S nodegroup && adduser -S nodeuser -G nodegroup
+
+# Files copy karo
+COPY --from=builder /app/node_modules ./node_modules
+COPY . .
+
+# Ownership change (Zaroori hai permissions ke liye)
+RUN chown -R nodeuser:nodegroup /app
+
+USER nodeuser
+
+# FRONTEND KA PORT (Check kar 3000 hai ya 5000)
+EXPOSE 3000 
+
+# Check kar "npm start" hai ya "node server.js"
+CMD ["npm", "start"]
