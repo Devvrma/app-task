@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/ai_assignment
+      - REDIS_URL=redis://redis:6379
+
+  worker:
+    build: ./worker
+    depends_on:
+      - mongodb
+      - redis
